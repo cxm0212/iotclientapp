@@ -147,7 +147,7 @@ export default {
 
       key: "tab1",
       lastTime: "2010-10-10 12:20:30",
-      setvalue:0,
+      setvalue:"",
       // extratext: (
       //   <div>
       //     <a-button type='primary' onClick="setVoltage">设置电压</a-button>
@@ -378,18 +378,23 @@ export default {
       websocket.onmessage = function(event) {
         console.info("收到消息" + event.data);
         var data = JSON.parse(event.data);
-        if (data.outputVoltage != null && data.outputVoltage != "") {
-          self.$refs.voltageChildRef.value = data.outputVoltage;
-          self.$refs.voltageChildRef.time = data.voltageTime;
+        if(data.type=="deviceProperty"){
+          if (data.outputVoltage != null && data.outputVoltage != "") {
+            self.$refs.voltageChildRef.value = data.outputVoltage;
+            self.$refs.voltageChildRef.time = data.voltageTime;
+          }
+          if (data.currentTemperature != null && data.currentTemperature != "") {
+            self.$refs.tempChildRef.value = data.currentTemperature;
+            self.$refs.tempChildRef.time = data.temperatureTime;
+          }
+          if (data.outputElectricity != null && data.outputElectricity != "") {
+            self.$refs.electricityChildRef.value = data.outputElectricity;
+            self.$refs.electricityChildRef.time = data.electricityTime;
+          }
+        }else if(data.type=="deviceStatus"){
+          self.$refs.onlineChildRef.deviceStatus = data.status;
         }
-        if (data.currentTemperature != null && data.currentTemperature != "") {
-          self.$refs.tempChildRef.value = data.currentTemperature;
-          self.$refs.tempChildRef.time = data.temperatureTime;
-        }
-        if (data.outputElectricity != null && data.outputElectricity != "") {
-          self.$refs.electricityChildRef.value = data.outputElectricity;
-          self.$refs.electricityChildRef.time = data.electricityTime;
-        }
+
       };
       websocket.onerror = function() {
         console.info("websocket通讯发生错误！");
@@ -438,7 +443,7 @@ export default {
     },
     setDeviceProperty : function(item){
       console.log(item+"---------------------------设置设备数据")
-      axios.get("http://localhost:7890/setDeviceProperty",{
+      axios.get("http://47.94.170.246:7890/setDeviceProperty",{
           params:{
             deviceName: this.currentDevice.deviceName,
             productKey: this.currentDevice.productKey,
